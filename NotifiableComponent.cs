@@ -1,24 +1,49 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.Components;
 
-public class NotifiableComponent : ComponentBase, IDisposable
+namespace BlazorStateNotifier
 {
-    private void ReRender() => base.InvokeAsync(StateHasChanged);
-
-    private List<IStateNotifier> _listening;
-
-    protected void Watch<T>(StateNotifier<T> stateNotifier)
+    public class NotifiableComponent : ComponentBase, IDisposable
     {
-        stateNotifier.AddListener(ReRender);
-        _listening.Add(stateNotifier);
-    }
+        private void ReRender() => base.InvokeAsync(StateHasChanged);
 
-    public void Dispose()
-    {
-        foreach (var stateNotifier in _listening)
+        private readonly List<IStateNotifier> _listening;
+
+        public NotifiableComponent()
         {
-            stateNotifier.RemoveListener(ReRender);
+            _listening = new List<IStateNotifier>();
+        }
+
+        protected void Watch(IStateNotifier stateNotifier)
+        {
+            stateNotifier.AddListener(ReRender);
+            _listening.Add(stateNotifier);
+        }
+
+        public void Dispose()
+        {
+            foreach (var stateNotifier in _listening)
+            {
+                stateNotifier.RemoveListener(ReRender);
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            var stateNotifiers = GetType()
+                .GetProperties()
+                .Where(p => p.GetValue(this) is IStateNotifier);
+
+            foreach (var stateNotifierProperty in stateNotifiers)
+            {
+                var stateNotifier = (IStateNotifier)stateNotifierProperty.GetValue(this);
+                Watch(stateNotifier);
+            }
+
+            base.OnInitialized();
         }
     }
 }
+

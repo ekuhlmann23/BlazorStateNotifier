@@ -1,39 +1,43 @@
 using System;
 
-public interface IStateNotifier
+namespace BlazorStateNotifier
 {
-    void AddListener(Action listener);
-    void RemoveListener(Action listener);
-}
-
-public abstract class StateNotifier<T> : IStateNotifier
-{ 
-    StateNotifier(T initialState)
+    public interface IStateNotifier
     {
-        State = initialState;
+        void AddListener(Action listener);
+        void RemoveListener(Action listener);
     }
 
-    private event Action Listeners;
-
-    private T _state;
-    protected T State {
-        get => _state;
-        set => SetState(value);
-    }
-
-    protected void SetState(T newState)
+    public abstract class StateNotifier<T> : IStateNotifier
     {
-        _state = newState;
-        Listeners.Invoke();
-    }
+        public StateNotifier(T initialState)
+        {
+            State = initialState;
+        }
 
-    public void AddListener(Action listener)
-    {
-        Listeners += listener; 
-    }
+        private event Action Listeners;
 
-    public void RemoveListener(Action listener)
-    {
-        Listeners -= listener;
+        private T _state;
+        public T State
+        {
+            get => _state;
+            protected set => SetState(value);
+        }
+
+        protected void SetState(T newState)
+        {
+            _state = newState;
+            Listeners?.Invoke();
+        }
+
+        public void AddListener(Action listener)
+        {
+            Listeners += listener;
+        }
+
+        public void RemoveListener(Action listener)
+        {
+            Listeners -= listener;
+        }
     }
 }
