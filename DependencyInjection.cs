@@ -21,7 +21,7 @@ namespace BlazorStateNotifier
 
                 foreach (var stateNotifier in stateNotifiers)
                 {
-                    services.AddScoped(stateNotifier);
+                    services.AddTransient(stateNotifier);
                 }
             }
 
