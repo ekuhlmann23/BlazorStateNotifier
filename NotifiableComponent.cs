@@ -7,7 +7,7 @@ namespace BlazorStateNotifier
 {
     public class NotifiableComponent : ComponentBase, IDisposable
     {
-        private void ReRender() => base.InvokeAsync(StateHasChanged);
+        protected virtual void ReRender() => InvokeAsync(StateHasChanged);
 
         private readonly List<IStateNotifier> _listening;
 
@@ -46,4 +46,3 @@ namespace BlazorStateNotifier
         }
     }
 }
-
